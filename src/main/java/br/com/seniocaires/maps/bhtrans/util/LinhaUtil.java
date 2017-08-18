@@ -1,7 +1,6 @@
 package br.com.seniocaires.maps.bhtrans.util;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -23,7 +22,7 @@ public class LinhaUtil {
   }
 
   public static Map<String, String> getLinhas() throws AppException {
-    Map<String, String> linhas = new HashMap<String, String>();
+    Map<String, String> linhas = new HashMap<>();
     WebClient webClient = new WebClient(BrowserVersion.CHROME);
     HtmlPage pagina = null;
 
@@ -32,13 +31,7 @@ public class LinhaUtil {
       for (Object linkLinha : pagina.getByXPath("//a[@class='ui-link-inherit']")) {
         linhas.put(((HtmlAnchor) linkLinha).getHrefAttribute(), ((HtmlAnchor) linkLinha).asText());
       }
-    } catch (FailingHttpStatusCodeException e) {
-      Logger.getLogger(LinhaUtil.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-      throw new AppException(Status.BAD_GATEWAY, "A lista de linhas da BHTrans está indisponível.");
-    } catch (MalformedURLException e) {
-      Logger.getLogger(LinhaUtil.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-      throw new AppException(Status.BAD_GATEWAY, "A lista de linhas da BHTrans está indisponível.");
-    } catch (IOException e) {
+    } catch (FailingHttpStatusCodeException | IOException e) {
       Logger.getLogger(LinhaUtil.class.getName()).log(Level.SEVERE, e.getMessage(), e);
       throw new AppException(Status.BAD_GATEWAY, "A lista de linhas da BHTrans está indisponível.");
     } finally {
