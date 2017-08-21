@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Pontos do ônibus</title>
+    <style>
+      #map {
+        height: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      var geocoder;
+      var map;
+      function initMap() {
+        geocoder = new google.maps.Geocoder();
+        var myLatlng = new google.maps.LatLng(-19.9380671,-43.9865672);
+        var mapOptions = {
+          zoom: 15,
+          center: myLatlng
+        }
+        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = async function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var items = JSON.parse(xhr.response);
+            contadorPonto = 0;
+            for (var indiceLinha = 0; indiceLinha < items.length; indiceLinha++) {
+              for (var indicePonto in items[indiceLinha]["pontos"]) {
+                if (contadorPonto == 0) {
+                  plotarPonto(items[indiceLinha]["pontos"][indicePonto], true);
+                } else {
+                  plotarPonto(items[indiceLinha]["pontos"][indicePonto], false);
+                }
+                contadorPonto++;
+                await sleep(1000);
+              }
+            }
+          }
+        }
+        xhr.open("POST", "/bhtrans/v1/intinerario", true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        var data;
+        data = 'link-linha=http://servicosbhtrans.pbh.gov.br/bhtrans/e-servicos/S02F02-itinerarioResultado.asp?linha=504';
+        xhr.send(data);
+      }
+
+      function plotarPonto(endereco, init) {
+          geocoder.geocode( { 'address': endereco}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+              if(init) {
+                map.setCenter(results[0].geometry.location);
+              }
+              var marker = new google.maps.Marker({
+                  map: map,
+                  position: results[0].geometry.location
+              });
+              marker.setMap(map);
+            } else {
+              console.log('Erro ao plotar ponto Geocode: ' + status);
+            }
+          });
+        }
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyhwVdciSL8UEnbCISpBlEb-HFNpv_ruA&callback=initMap">
+    </script>
+  </body>
+</html>
