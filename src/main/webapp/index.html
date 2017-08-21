@@ -5,6 +5,34 @@
 <title>BHTrans</title>
 </head>
 <body>
-
+<script>
+function submitForm(oFormElement) {
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function() {
+		if (xhr.readyState === 4 && xhr.status === 200) {
+			var items = JSON.parse(xhr.response);
+			for (var indiceLinha = 0; indiceLinha < items.length; indiceLinha++) {
+				var linkMapa = "https://www.google.com.br/maps/dir/";
+				for (var indicePonto in items[indiceLinha]["pontos"]) {
+					linkMapa += items[indiceLinha]["pontos"][indicePonto] + "/";
+				} 
+				linkMapa += "?hl=pt-BR"
+				window.location = linkMapa;
+			}
+		}
+	}
+	xhr.open(oFormElement.method, oFormElement.action, true);
+	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	var data;
+	data = 'link-linha=' + document.getElementById("link-linha").value;
+	xhr.send(data);
+	return false;
+}
+</script>
+<form action="/bhtrans/v1/intinerario" method="post" onsubmit="return submitForm(this);">
+<input type="text" name="link-linha" id="link-linha" size="200" value="http://servicosbhtrans.pbh.gov.br/bhtrans/e-servicos/S02F02-itinerarioResultado.asp?linha=5401">
+<br>
+<input type="submit" value="buscar">
+</form>
 </body>
 </html>
